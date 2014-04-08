@@ -1,0 +1,118 @@
+.logger_console
+{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+    color: #555;
+}
+
+.logger_title
+{
+    padding: 4px 8px 4px 8px;
+    font-family: Monospace;
+    font-size: 12px;
+    color: white;
+    position: fixed;
+    right: 0px;
+    top: 0px;
+    background: rgb(87, 90, 92);
+    border-bottom: 1px solid rgb(60, 63, 65);
+    border-left: 1px solid rgb(60, 63, 65);
+    vertical-align: middle;
+    line-height: 20px;
+    z-index: 999999;
+}
+
+.logger_title a
+{
+    color: white;
+    text-decoration: none;
+    line-height: 20px;
+    display: inline-block;
+}
+
+.logger_icon
+{
+    background: transparent url("/img/logger/icons.png") no-repeat -200px 0;
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    margin-top: 1px;
+    vertical-align: text-top;
+    margin-right: 4px;
+}
+
+.logger_icon_info       { background: transparent url("/img/logger/icons.png") no-repeat -1720px -80px; }
+.logger_icon_error      { background: transparent url("/img/logger/icons.png") no-repeat -1580px -100px; }
+.logger_icon_db         { background: transparent url("/img/logger/icons.png") no-repeat -320px -60px; }
+.logger_icon_time       { background: transparent url("/img/logger/icons.png") no-repeat -820px -180px; }
+.logger_icon_memory     { background: transparent url("/img/logger/icons.png") no-repeat -1140px -60px; }
+.logger_icon_plus       { background: transparent url("/img/logger/icons.png") no-repeat -20px 0; }
+.logger_icon_cache      { background: transparent url("/img/logger/icons.png") no-repeat -740px -140px; }
+.logger_icon_router     { background: transparent url("/img/logger/icons.png") no-repeat -1100px 0; }
+
+.logger_block
+{
+    width: 90%;
+    position: fixed;
+    right: 8px;
+    top: 34px;
+    padding: 8px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 0px 1px 2px rgba(0,0,0,0.4);
+    font-family: Monospace;
+    font-size: 11px;
+    max-height: 600px;
+    overflow: auto;
+    z-index: 999999;
+}
+
+.logger_block h3
+{
+    border: 1px solid #d5d5d5;
+    background: linear-gradient(to bottom, #ffffff, #f7f7f7);
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+    color: #555;
+    padding: 9px 14px 9px 14px;
+    cursor: pointer;
+}
+
+.logger_block table
+{
+    width: 100%;
+    border: 1px solid #d5d5d5;
+    max-width: 100%;
+    background-color: transparent;
+    border-collapse: collapse;
+    border-spacing: 0;
+    display: table;
+}
+
+.logger_block table th
+{
+    border-left: 1px solid #dddddd;
+    font-weight: bold;
+    text-align: left;
+    padding: 8px 12px;
+    line-height: 20px;
+    vertical-align: middle;
+    display: table-cell;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #dddddd;
+}
+
+.logger_block table tr td
+{
+    border-left: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+    line-height: 20px;
+    padding: 8px 12px;
+}
+
+.logger_block table tr:nth-child(odd) td
+{
+    background-color: #f8f8f8;
+}

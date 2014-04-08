@@ -1,0 +1,8 @@
+#
+# URL Rewriting
+#
+Options +FollowSymlinks
+RewriteEngine On
+
+RewriteRule    ^$    /web/    [L]
+RewriteRule    (.*)	 /web/$1  [L]
