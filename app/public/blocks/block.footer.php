@@ -1,3 +1,0 @@
-<?php
-
-    Orion::getLogger()->buildConsole();
