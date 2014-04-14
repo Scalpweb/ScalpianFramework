@@ -51,7 +51,7 @@ class FileSystem
         if(!static::checkFile($path))
             throw(new DirectoryDoesNotExistsException("The specified directory does not exists: ".$path));
 
-        $result = [];
+        $result = array();
         $filelist = new DirectoryIterator($path);
         foreach($filelist as $file)
         {
