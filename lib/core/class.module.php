@@ -139,7 +139,7 @@ class Module
      */
     public function insertView()
     {
-        $viewPath = $this->getViewDirectory().'/view.'.$this->current_action.'.php';
+        $viewPath = $this->getViewDirectory().'/view.'.strtolower($this->current_action).'.php';
         if(FileSystem::checkFile($viewPath))
         {
             EventHandler::trigger(EventTypes::ORION_BEFORE_VIEW, $this);
