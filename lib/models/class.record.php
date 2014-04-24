@@ -332,7 +332,6 @@ class Record
             if($key === $name)
             {
                 // If not set yet, saved value as initial_value
-                $newvalue = Row::formatValue($value->getType(), $newvalue);
                 if(!isset($this->values[$key]))
                 {
                     $this->initial_values[$key] = $newvalue;

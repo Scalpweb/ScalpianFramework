@@ -91,6 +91,28 @@ class Module
         }
     }
 
+	/**
+	 * Send response to client
+	 * @param $response
+	 */
+	public function sendResponse($response)
+	{
+		echo $response;
+		EventHandler::trigger(EventTypes::ORION_AFTER_ACTION, $this);
+		exit;
+	}
+
+	/**
+	 * Send json response to client
+	 * @param $response
+	 */
+	public function sendJsonResponse($response)
+	{
+		echo json_encode($response);
+		EventHandler::trigger(EventTypes::ORION_AFTER_ACTION, $this);
+		exit;
+	}
+
     /**
      * Changes current layout
      * @param $layout_name
