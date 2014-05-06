@@ -12,6 +12,41 @@ class CurlHelper
         $this->curlInstance = curl_init($this->url);
     }
 
+	/**
+	 * @param $url
+	 * @param $data
+	 * @return bool|mixed
+	 */
+	public static function post($url, $data)
+	{
+		$curl = new CurlHelper($url, true);
+		$curl->setPostData($data);
+		return $curl->execute();
+	}
+
+	/**
+	 * @param $url
+	 * @param $data
+	 * @return bool|mixed
+	 */
+	public static function get($url, $data)
+	{
+		$url .= '?';
+		foreach($data as $k=>$v)
+			$url .= $k.'='.$v.'&';
+		$curl = new CurlHelper($url, true);
+		return $curl->execute();
+	}
+
+	/**
+	 * @param $datas
+	 */
+	public function setPostData($datas)
+	{
+		$this->setOption(CURLOPT_POST, sizeof($datas));
+		$this->setOption(CURLOPT_POSTFIELDS, $datas);
+	}
+
     /**
      * @param $path
      * @param string $mode
