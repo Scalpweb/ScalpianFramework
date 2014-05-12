@@ -8,6 +8,8 @@ class FileSystemCacheLayer implements CacheLayer
     static public function get($key)
     {
         $key = static::fixKey($key);
+	    if(!FileSystem::checkFile(self::$cachePath.'/'.$key.'.cache'))
+		    return false;
         return unserialize(FileSystem::readFile(self::$cachePath.'/'.$key.'.cache'));
     }
 

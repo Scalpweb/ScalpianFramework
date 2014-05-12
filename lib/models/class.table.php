@@ -81,7 +81,9 @@ class Table
      */
     public function query()
     {
-        return new Query($this->getDatabase());
+        $query = new Query($this->getDatabase());
+	    $query->addFrom($this);
+	    return $query;
     }
 
     /**
