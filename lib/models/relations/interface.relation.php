@@ -3,6 +3,6 @@
 interface Relation
 {
 
-    public function __construct($tableOne, $tableTwo);
+	public function __construct($tableOne, $tableTwo);
 
 }

@@ -3,7 +3,7 @@
 abstract class FormMethod
 {
 
-    const POST = 'post';
-    const GET = 'get';
+	const POST = 'post';
+	const GET = 'get';
 
 }

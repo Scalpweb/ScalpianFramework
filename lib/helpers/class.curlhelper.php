@@ -3,25 +3,33 @@
 class CurlHelper
 {
 
-    private $url, $return_result, $options = array(), $result_to_file_path = '', $result_to_file_mode = '', $curlInstance;
+	private $url, $return_result, $options = array(), $result_to_file_path = '', $result_to_file_mode = '', $curlInstance;
 
-    public function __construct($_url,$_return_result = true)
-    {
-        $this->url = $_url;
-        $this->return_result = $_return_result;
-        $this->curlInstance = curl_init($this->url);
-    }
+	public function __construct($_url, $_return_result = true)
+	{
+		$this->url = $_url;
+		$this->return_result = $_return_result;
+		$this->curlInstance = curl_init($this->url);
+	}
 
 	/**
-	 * @param $url
+	 * Call a local action
+	 *
+	 * @param $appName
+	 * @param $moduleName
+	 * @param $actionName
 	 * @param $data
-	 * @return bool|mixed
+	 * @param bool $isPost
 	 */
-	public static function post($url, $data)
+	public static function callAction($appName, $moduleName, $actionName, $data = array(), $isPost = false)
 	{
-		$curl = new CurlHelper($url, true);
-		$curl->setPostData($data);
-		return $curl->execute();
+		$url = Request::getInstance()->isSecure() ? 'https://' : 'http://';
+		$url .= Request::getInstance()->getDomain() . '/';
+		$url .= $appName . '/' . $moduleName . '/' . $actionName;
+		if ($isPost)
+			self::post($url, $data);
+		else
+			self::get($url, $data);
 	}
 
 	/**
@@ -29,13 +37,30 @@ class CurlHelper
 	 * @param $data
 	 * @return bool|mixed
 	 */
-	public static function get($url, $data)
+	public static function post($url, $data = array())
 	{
-		$url .= '?';
-		foreach($data as $k=>$v)
-			$url .= $k.'='.$v.'&';
 		$curl = new CurlHelper($url, true);
-		return $curl->execute();
+		$curl->setPostData($data);
+		$result = $curl->execute();
+		return $result;
+	}
+
+	/**
+	 * @param $url
+	 * @param $data
+	 * @return bool|mixed
+	 */
+	public static function get($url, $data = array())
+	{
+		if (sizeof($data) > 0)
+		{
+			$url .= '?';
+			foreach ($data as $k => $v)
+				$url .= $k . '=' . $v . '&';
+		}
+		$curl = new CurlHelper($url, true);
+		$result = $curl->execute();
+		return $result;
 	}
 
 	/**
@@ -43,70 +68,75 @@ class CurlHelper
 	 */
 	public function setPostData($datas)
 	{
-		$this->setOption(CURLOPT_POST, sizeof($datas));
+		$this->setOption(CURLOPT_POST, is_array($datas) ? sizeof($datas) : true);
 		$this->setOption(CURLOPT_POSTFIELDS, $datas);
 	}
 
-    /**
-     * @param $path
-     * @param string $mode
-     */
-    public function writeResultToFile($path, $mode = 'w')
-    {
-        $this->result_to_file_path = $path;
-        $this->result_to_file_mode = $mode;
-    }
+	/**
+	 * @param $path
+	 * @param string $mode
+	 */
+	public function writeResultToFile($path, $mode = 'w')
+	{
+		$this->result_to_file_path = $path;
+		$this->result_to_file_mode = $mode;
+	}
 
-    /**
-     * @param $option
-     * @param $value
-     */
-    public function setOption($option, $value)
-    {
-        $this->options[$option] = $value;
-    }
+	/**
+	 * @param $option
+	 * @param $value
+	 */
+	public function setOption($option, $value)
+	{
+		$this->options[$option] = $value;
+	}
 
-    /**
-     * Execute curl
-     * @return bool|mixed
-     */
-    public function execute()
-    {
+	/**
+	 * Execute curl
+	 * @return bool|mixed
+	 */
+	public function execute()
+	{
 
-        if($this->result_to_file_path !== '')
-        {
-            $fp = fopen($this->result_to_file_path, $this->result_to_file_mode);
-            curl_setopt($this->curlInstance, CURLOPT_FILE, $fp);
-        }
+		if ($this->result_to_file_path !== '')
+		{
+			$fp = fopen($this->result_to_file_path, $this->result_to_file_mode);
+			curl_setopt($this->curlInstance, CURLOPT_FILE, $fp);
+		}
 
-        foreach($this->options as $key=>$value)
-            curl_setopt($this->curlInstance, $key, $value);
+		if($this->return_result)
+			curl_setopt($this->curlInstance, CURLOPT_RETURNTRANSFER, true);
 
-        $result = curl_exec($this->curlInstance);
-        curl_close($this->curlInstance);
+		foreach ($this->options as $key => $value)
+			curl_setopt($this->curlInstance, $key, $value);
 
-        if($this->result_to_file_path !== '')
-        {
-            fclose($fp);
-        }
+		Logger::getInstance()->log(LoggerEntry::CURL, 'CurlHelper', 'Send request to ' . $this->url.', with options: <pre>'.OrionTools::print_r($this->options, 0, true).'</pre>');
+		$result = curl_exec($this->curlInstance);
+		Logger::getInstance()->log(LoggerEntry::CURL, 'CurlHelper', 'Request ended: '.OrionTools::print_r($result, 0, true));
+		curl_close($this->curlInstance);
 
-        return $this->return_result ? $result : true;
-    }
+		if ($this->result_to_file_path !== '')
+		{
+			fclose($fp);
+		}
 
-    /**
-     * @return resource
-     */
-    public function getCurlObject()
-    {
-        return $this->curlInstance;
-    }
+		return $this->return_result ? $result : true;
+	}
 
-    /**
-     * @return mixed
-     */
-    public function getUrl()
-    {
-        return $this->url;
-    }
+	/**
+	 * @return resource
+	 */
+	public function getCurlObject()
+	{
+		return $this->curlInstance;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getUrl()
+	{
+		return $this->url;
+	}
 
 }

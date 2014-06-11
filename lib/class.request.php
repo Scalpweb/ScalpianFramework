@@ -3,63 +3,73 @@
 class Request extends Singleton
 {
 
-    /**
-     * Checks if a get variable is set
-     * @param $ref
-     * @return bool
-     */
-    public function isSetGet($ref)
-    {
-        return isset($_GET[$ref]);
-    }
+	/**
+	 * Checks if the current request comes from local host
+	 *
+	 * @return bool
+	 */
+	public function isLocalHost()
+	{
+		return in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', "::1"));
+	}
 
-    /**
-     * Checks if a post variable is set
-     * @param $ref
-     * @return bool
-     */
-    public function isSetPost($ref)
-    {
-        return isset($_POST[$ref]);
-    }
+	/**
+	 * Checks if a get variable is set
+	 * @param $ref
+	 * @return bool
+	 */
+	public function isSetGet($ref)
+	{
+		return isset($_GET[$ref]);
+	}
 
-    /**
-     * Set a get variable from URL
-     * @param $index
-     * @param $value
-     */
-    public function setGetFromUrl($index, $value)
-    {
-        $_GET['url'.$index] = $value;
-    }
+	/**
+	 * Checks if a post variable is set
+	 * @param $ref
+	 * @return bool
+	 */
+	public function isSetPost($ref)
+	{
+		return isset($_POST[$ref]);
+	}
 
-    /**
-     * Returns a get variable
-     * @param $ref
-     * @param bool $clean
-     * @throws UndefinedGetVariable
-     * @return mixed
-     */
-    public function getGet($ref, $clean = true)
-    {
-        if(!isset($_GET[$ref]))
-            throw(new UndefinedGetVariable("Unknown get variable: ".$ref));
-        return $clean ? htmlentities($_GET[$ref]) : $_GET[$ref];
-    }
+	/**
+	 * Set a get variable from URL
+	 * @param $index
+	 * @param $value
+	 */
+	public function setGetFromUrl($index, $value)
+	{
+		$_GET['url' . $index] = $value;
+	}
 
-    /**
-     * Returns a post variable
-     * @param $ref
-     * @param bool $clean
-     * @throws UndefinedPostVariable
-     * @return mixed
-     */
-    public function getPost($ref, $clean = true)
-    {
-        if(!isset($_POST[$ref]))
-            throw(new UndefinedPostVariable("Unknown post variable: ".$ref));
-        return $clean ? htmlentities($_POST[$ref]) : $_POST[$ref];
-    }
+	/**
+	 * Returns a get variable
+	 * @param $ref
+	 * @param bool $clean
+	 * @throws UndefinedGetVariable
+	 * @return mixed
+	 */
+	public function getGet($ref, $clean = true)
+	{
+		if (!isset($_GET[$ref]))
+			throw(new UndefinedGetVariable("Unknown get variable: " . $ref));
+		return $clean ? htmlentities($_GET[$ref]) : $_GET[$ref];
+	}
+
+	/**
+	 * Returns a post variable
+	 * @param $ref
+	 * @param bool $clean
+	 * @throws UndefinedPostVariable
+	 * @return mixed
+	 */
+	public function getPost($ref, $clean = true)
+	{
+		if (!isset($_POST[$ref]))
+			throw(new UndefinedPostVariable("Unknown post variable: " . $ref));
+		return $clean ? htmlentities($_POST[$ref]) : $_POST[$ref];
+	}
 
 	public function getMethod()
 	{
@@ -73,7 +83,7 @@ class Request extends Singleton
 
 	public function getDomain()
 	{
-		return $_SERVER['SERVER_NAME'];
+		return isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
 	}
 
 	public function getIp()
@@ -98,11 +108,13 @@ class Request extends Singleton
 
 	public function checkIsInternalIp($ip = null, $isWanIncluded = true)
 	{
-		if (empty($ip)) {
+		if (empty($ip))
+		{
 			$ip = $this->getIp();
 		}
 
-		if (strpos($ip, '192.168.') === 0) {
+		if (strpos($ip, '192.168.') === 0)
+		{
 			return true;
 		}
 
@@ -111,37 +123,39 @@ class Request extends Singleton
 
 	public function isReferrerOnSameDomain($allowSubdomains = true)
 	{
-		if (!isset($_SERVER['HTTP_REFERER'])) {
+		if (!isset($_SERVER['HTTP_REFERER']))
+		{
 			return false;
 		}
 
 		$referrerDomain = @parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
-		if ($referrerDomain === false) {
+		if ($referrerDomain === false)
+		{
 			return false;
 		}
 
-		if ($allowSubdomains) {
+		if ($allowSubdomains)
+		{
 			return
 				$referrerDomain === $_SERVER['SERVER_NAME'] ||
-				stristr($referrerDomain, '.'.$_SERVER['SERVER_NAME']) === '.'.$_SERVER['SERVER_NAME'] ||
-				stristr($_SERVER['SERVER_NAME'], '.'.$referrerDomain) === '.'.$referrerDomain;
-		}
-		else {
+				stristr($referrerDomain, '.' . $_SERVER['SERVER_NAME']) === '.' . $_SERVER['SERVER_NAME'] ||
+				stristr($_SERVER['SERVER_NAME'], '.' . $referrerDomain) === '.' . $referrerDomain;
+		} else
+		{
 			return $referrerDomain === $_SERVER['SERVER_NAME'];
 		}
 	}
 
 	public function isSecure()
 	{
-		return !empty($_SERVER['HTTPS']);
+		return isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']);
 	}
 
 	public function isAjaxRequest()
 	{
 		return (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest')
-			// JSON P hack.
-			|| (isset($_GET['requestId']) && (isset($_GET['callback']) || isset($_GET['callBack'])))
-		;
+		// JSON P hack.
+		|| (isset($_GET['requestId']) && (isset($_GET['callback']) || isset($_GET['callBack'])));
 	}
 
 	public function getUserAgent()
@@ -151,71 +165,80 @@ class Request extends Singleton
 
 	public function getBrowserInfo($userAgent = '')
 	{
-		if (empty($userAgent)) {
+		if (empty($userAgent))
+		{
 			$userAgent = $this->getUserAgent();
 		}
 		$userAgent = strtolower($userAgent);
 
 		$info = array(
-			'os'      => '?',
+			'os' => '?',
 			'browser' => '?',
 			'version' => '?'
 		);
 
-		if (empty($userAgent)) {
+		if (empty($userAgent))
+		{
 			return $info;
 		}
 
-		if (strpos($userAgent, 'windows') !== false) {
+		if (strpos($userAgent, 'windows') !== false)
+		{
 			$info['os'] = 'win';
-		}
-		elseif (strpos($userAgent, 'macintosh') !== false) {
+		} elseif (strpos($userAgent, 'macintosh') !== false)
+		{
 			$info['os'] = 'mac';
-		}
-		elseif (strpos($userAgent, 'linux') !== false) {
+		} elseif (strpos($userAgent, 'linux') !== false)
+		{
 			$info['os'] = 'linux';
 		}
 
 		$browsers = array(
-			'opera'   => array(
-				'name'           => 'opera',
+			'opera' => array(
+				'name' => 'opera',
 				'versionPattern' => '#version/(\d+(?:\.\d+)?)#',
 			),
-			'msie'    => array(
-				'name'           => 'ie',
+			'msie' => array(
+				'name' => 'ie',
 				'versionPattern' => '#msie (\d+)#',
 			),
 			'firefox' => array(
-				'name'           => 'ff',
+				'name' => 'ff',
 				'versionPattern' => '#firefox/(\d+(?:\.\d+)?)#',
 			),
-			'chrome'  => array(
-				'name'           => 'chrome',
+			'chrome' => array(
+				'name' => 'chrome',
 				'versionPattern' => '#chrome/(\d+(?:\.\d+)?)#',
 			),
 		);
 
-		do {
-			foreach ($browsers as $browser => $browserData) {
-				if (strpos($userAgent, $browser) !== false) {
+		do
+		{
+			foreach ($browsers as $browser => $browserData)
+			{
+				if (strpos($userAgent, $browser) !== false)
+				{
 					$info['browser'] = $browserData['name'];
 					$matches = array();
-					if (preg_match($browserData['versionPattern'], $userAgent, $matches)) {
+					if (preg_match($browserData['versionPattern'], $userAgent, $matches))
+					{
 						$info['version'] = $matches[1];
 					}
 					break 2;
 				}
 			}
 
-			if (strpos($userAgent, 'safari') !== false) {
+			if (strpos($userAgent, 'safari') !== false)
+			{
 				$info['browser'] = 'safari';
 
-				if (preg_match('#version/(\d+)#', $userAgent, $matches)) {
+				if (preg_match('#version/(\d+)#', $userAgent, $matches))
+				{
 					$info['version'] = $matches[1];
-				}
-				elseif (preg_match('#applewebkit/(\d+)#', $userAgent, $matches)) {
+				} elseif (preg_match('#applewebkit/(\d+)#', $userAgent, $matches))
+				{
 					$safariVersionMatrix = array(
-						85  => '1',
+						85 => '1',
 						401 => '2',
 						521 => '3',
 						528 => '4',
@@ -224,18 +247,18 @@ class Request extends Singleton
 					$buildVersion = $matches[1];
 					$buildVersions = array_keys($safariVersionMatrix);
 					$currentBuildVersion = current($buildVersions);
-					do {
-						if ($currentBuildVersion > $buildVersion) {
+					do
+					{
+						if ($currentBuildVersion > $buildVersion)
+						{
 							$info['version'] = $safariVersionMatrix[prev($buildVersions)];
 							break;
 						}
-					}
-					while (($currentBuildVersion = next($buildVersions)) !== false);
+					} while (($currentBuildVersion = next($buildVersions)) !== false);
 				}
 				break;
 			}
-		}
-		while (false);
+		} while (false);
 
 
 		return $info;
@@ -243,7 +266,8 @@ class Request extends Singleton
 
 	public function getAllHeaders()
 	{
-		if (!strstr(PHP_SAPI, 'apache')) {
+		if (!strstr(PHP_SAPI, 'apache'))
+		{
 			throw new Exception('Request::getAllHeaders() hivas nem Apache kornyezetben!');
 		}
 		return apache_request_headers();
